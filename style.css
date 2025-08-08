@@ -1,0 +1,138 @@
+body {
+  margin: 0;
+  padding: 50px 20px 150px; /* Extra bottom padding for camera preview */
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #fad0c4 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+}
+h1 {
+  font-weight: 700;
+  font-size: 2.4rem;
+  margin-bottom: 15px;
+  min-height: 3em;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+  word-wrap: break-word;
+  text-align: center;
+}
+
+#surpriseGif {
+  max-width: 300px;
+  width: 80vw;
+  margin-bottom: 20px;
+  border-radius: 15px;
+  box-shadow: 0 8px 15px rgba(0,0,0,0.25);
+  position: relative;
+  z-index: 10;
+}
+
+/* Camera preview box fixed at bottom - made small */
+#cameraContainer {
+  position: fixed;
+  bottom: 1px;
+  left: 5%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  background: #000;
+  display: none; /* Hidden initially */
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  border-radius: 1px;
+  overflow: hidden;
+  box-shadow: 0 0 1px rgba(0,0,0,0.7);
+}
+
+#cameraContainer video {
+  width: 20%;
+  height: 20%;
+  object-fit: cover;
+  display: block;
+}
+
+#tapBtn, #okReadyBtn, #countdown, #hiddenText, #photoContainer {
+  display: none;
+}
+
+button {
+  background: linear-gradient(45deg, #4caf50, #388e3c);
+  border: none;
+  color: white;
+  padding: 14px 30px;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(72, 158, 72, 0.6);
+  transition: background 0.3s ease, transform 0.15s ease;
+  user-select: none;
+}
+button:hover {
+  background: linear-gradient(45deg, #66bb6a, #2e7d32);
+  transform: scale(1.05);
+}
+
+#cancelBtn {
+  background: #f44336;
+  box-shadow: 0 6px 12px rgba(244, 67, 54, 0.6);
+}
+#cancelBtn:hover {
+  background: #d32f2f;
+}
+
+#hiddenText {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  color: #7a3e3e;
+  font-weight: 600;
+  animation: blinkText 1.4s ease-in-out infinite;
+  min-height: 2em;
+  text-align: center;
+  max-width: 320px;
+}
+@keyframes blinkText {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0.3; }
+}
+
+#countdown {
+  font-size: 5rem;
+  font-weight: 900;
+  color: #d32f2f;
+  user-select: none;
+  animation: shake 0.6s infinite;
+  margin-bottom: 25px;
+  text-align: center;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  50% { transform: translateX(10px); }
+  75% { transform: translateX(-10px); }
+}
+
+#canvas {
+  display: none;
+}
+
+#contentWrapper {
+  max-width: 360px;
+  width: 90vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.typing-text {
+  white-space: normal;
+  overflow: hidden;
+  /* removed border-right to hide cursor */
+  display: inline-block;
+  min-height: 1.2em;
+}
